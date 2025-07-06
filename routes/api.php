@@ -33,6 +33,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
+    Route::get('/my-shop', [ShopController::class, 'showMine']); // For the dashboard
+    Route::post('/shops', [ShopController::class, 'store']);     // To create a new shop
     // Shop owner routes
     Route::put('/shops/{shop}', [ShopController::class, 'update']); // Update my shop details
 
