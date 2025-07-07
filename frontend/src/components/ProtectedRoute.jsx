@@ -2,23 +2,37 @@
 
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Spinner } from 'react-bootstrap'; // Import the spinner
 
-// This component checks for authentication and a specific role
 function ProtectedRoute({ children, role }) {
-    const { isAuthenticated, user } = useAuth();
+    // We now get the 'loading' state from our AuthContext
+    const { isAuthenticated, user, loading } = useAuth();
 
-    // 1. If the user is not authenticated, redirect to the login page
+    // 1. NEW: If the authentication status is still being determined, show a loading screen.
+    // This is the most important fix. It prevents the component from proceeding
+    // with a null 'user' object.
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
+                <Spinner animation="border" />
+            </div>
+        );
+    }
+
+    // 2. If loading is finished and the user is NOT authenticated, redirect to login.
+    // This check is now safe because we know 'loading' is false.
     if (!isAuthenticated) {
         return <Navigate to="/login" />;
     }
 
-    // 2. If a role is required and the user's role doesn't match, redirect to home
-    // This prevents a regular 'user' from accessing a 'shopowner' dashboard
+    // 3. If a role is required, check if the user's role matches.
+    // This check is also safe now, because if isAuthenticated is true, 'user' must be an object.
     if (role && user.role !== role) {
+        // You could redirect to an "Unauthorized" page for a better user experience
         return <Navigate to="/" />;
     }
 
-    // 3. If everything is fine, render the requested component
+    // 4. If all checks pass, render the child component.
     return children;
 }
 

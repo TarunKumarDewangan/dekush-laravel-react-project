@@ -16,52 +16,8 @@ class ShopController extends Controller
         return Shop::where('is_active', true)->orderBy('name')->get();
     }
 
-    /**
-     * Get a single shop's public details and its products. (Public)
-     * Corresponds to: GET /api/shops/{shop}
-     */
-    public function showPublic(Shop $shop)
-    {
-        // Renamed from 'show' to 'showPublic' to avoid conflict.
-        return $shop->load('products');
-    }
 
-    public function showMine(Request $request)
-    {
-        $shop = $request->user()->shop;
 
-        if (!$shop) {
-            return response()->json(['shop' => null]);
-        }
-        return response()->json(['shop' => $shop]);
-    }
-
-    /**
-     * Store a newly created shop for the authenticated user. (Protected)
-     * Corresponds to: POST /api/shops
-     */
-    public function store(Request $request)
-    {
-        // Using a Gate is cleaner than an if statement. See 'Better Idea' below.
-        Gate::authorize('create-shop');
-
-        // Check if the user already has a shop
-        if ($request->user()->shop) {
-            return response()->json(['message' => 'You already own a shop.'], 400);
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:shops',
-            'description' => 'required|string|max:1000',
-        ]);
-
-        $shop = $request->user()->shop()->create($validated);
-
-        return response()->json([
-            'message' => 'Shop created successfully!',
-            'shop' => $shop
-        ], 201);
-    }
 
     public function update(Request $request, Shop $shop)
     {

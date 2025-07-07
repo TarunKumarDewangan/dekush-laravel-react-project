@@ -10,6 +10,7 @@ import ShopPage from './pages/ShopPage';
 import ProtectedRoute from './components/ProtectedRoute'; // <-- Import the guard
 import DashboardPage from './pages/DashboardPage'; // <-- Import the new page
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import AmbulancePage from './pages/AmbulancePage';
 
 
 
@@ -37,6 +38,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+           <Route path="/ambulances" element={<AmbulancePage />} />
 
           {/* --- ADD THIS NEW PROTECTED ADMIN ROUTE --- */}
           <Route

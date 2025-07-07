@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ShopController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\HospitalController; // Add this
+use App\Http\Controllers\Api\AmbulanceController; // Add this
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +28,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/shops', [ShopController::class, 'index']);
 Route::get('/shops/{shop}', [ShopController::class, 'show']);
 
+Route::get('/hospitals', [HospitalController::class, 'index']);
+Route::get('/ambulances', [AmbulanceController::class, 'index']);
+
 
 // --- Protected Routes (Require Authentication) ---
 Route::middleware('auth:sanctum')->group(function () {
@@ -33,8 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
-    Route::get('/my-shop', [ShopController::class, 'showMine']); // For the dashboard
-    Route::post('/shops', [ShopController::class, 'store']);     // To create a new shop
+
+
     // Shop owner routes
     Route::put('/shops/{shop}', [ShopController::class, 'update']); // Update my shop details
 
