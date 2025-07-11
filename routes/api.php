@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\HospitalController; // Add this
 use App\Http\Controllers\Api\AmbulanceController; // Add this
+use App\Http\Controllers\Api\LanguageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +20,9 @@ use App\Http\Controllers\Api\AmbulanceController; // Add this
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// This route allows anyone to submit a new entry.
+Route::post('/language-entries', [LanguageController::class, 'store']);
 
 // --- Public Routes ---
 Route::post('/register', [AuthController::class, 'register']);
@@ -47,6 +51,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+
+    // These routes are for the verifiers/admins.
+    Route::get('/language-entries/pending', [LanguageController::class, 'getPending']);
+    Route::put('/language-entries/{entry}/approve', [LanguageController::class, 'approve']);
+    Route::put('/language-entries/{entry}/reject', [LanguageController::class, 'reject']);
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
