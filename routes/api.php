@@ -9,57 +9,37 @@ use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\HospitalController; // Add this
 use App\Http\Controllers\Api\AmbulanceController; // Add this
 use App\Http\Controllers\Api\LanguageController;
+use App\Http\Controllers\Api\ShopOwnerController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
 
-// This route allows anyone to submit a new entry.
-Route::post('/language-entries', [LanguageController::class, 'store']);
-
-// --- Public Routes ---
+// --- PUBLIC ROUTES ---
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-
-// Public routes for viewing shops and their products
 Route::get('/shops', [ShopController::class, 'index']);
 Route::get('/shops/{shop}', [ShopController::class, 'show']);
-
 Route::get('/hospitals', [HospitalController::class, 'index']);
 Route::get('/ambulances', [AmbulanceController::class, 'index']);
+Route::post('/language-entries', [LanguageController::class, 'store']);
 
-
-// --- Protected Routes (Require Authentication) ---
+// --- PROTECTED ROUTES (Must be logged in) ---
 Route::middleware('auth:sanctum')->group(function () {
-    // Auth routes
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
-
-
-    // Shop owner routes
-    Route::put('/shops/{shop}', [ShopController::class, 'update']); // Update my shop details
+    // Shop Owner routes
+    Route::get('/owner/shops', [ShopOwnerController::class, 'index']);
+    Route::post('/owner/shops', [ShopOwnerController::class, 'store']);
+    Route::put('/shops/{shop}', [ShopController::class, 'update']);
 
     // Product management routes
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
-
-    // These routes are for the verifiers/admins.
-    Route::get('/language-entries/pending', [LanguageController::class, 'getPending']);
-    Route::put('/language-entries/{entry}/approve', [LanguageController::class, 'approve']);
-    Route::put('/language-entries/{entry}/reject', [LanguageController::class, 'reject']);
 });
 
+// --- ADMIN ONLY ROUTES ---
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     Route::get('/users', [AdminController::class, 'getAllUsers']);
-    Route::delete('/users/{user}', [AdminController::class, 'deleteUser']);
     Route::put('/users/{user}', [AdminController::class, 'update']);
+    Route::delete('/users/{user}', [AdminController::class, 'deleteUser']);
 });

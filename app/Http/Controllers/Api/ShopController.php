@@ -13,7 +13,7 @@ class ShopController extends Controller
     public function index()
     {
         // We only want to show shops that are marked as active
-        return Shop::where('is_active', true)->orderBy('name')->get();
+        return Shop::where('is_active', true)->with('images')->orderBy('name')->get();
     }
 
 
@@ -27,6 +27,7 @@ class ShopController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'contact_info' => 'nullable|string|max:255',
+            'address' => 'required|string|max:255',
         ]);
 
         $shop->update($validatedData);
@@ -38,7 +39,7 @@ class ShopController extends Controller
     public function show(Shop $shop)
     {
         // Eager load the products to prevent extra database queries
-        return $shop->load('products');
+        return $shop->load(['products', 'user', 'images']);
     }
 
     // Update a shop's details (Protected by the Gate)

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Shop extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id',
         'name',
@@ -15,7 +16,9 @@ class Shop extends Model
         'contact_info',
         'logo_path',
         'is_active',
-    ];
+        'address',
+        'shop_incharge_phone',
+    ]; // <--- ADD THE SEMICOLON HERE
 
     public function user()
     {
@@ -25,5 +28,10 @@ class Shop extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function images()
+    {
+        return $this->hasMany(ShopImage::class);
     }
 }

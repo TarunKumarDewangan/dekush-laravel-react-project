@@ -13,11 +13,18 @@ return new class extends Migration {
         Schema::create('shops', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('name'); // <-- THIS IS THE CRITICAL LINE. Make sure it says 'name'.
+            $table->string('name');
             $table->text('description')->nullable();
+
+            // --- ADDED/CONSOLIDATED COLUMNS ---
+            $table->string('address')->nullable();
+            $table->string('shop_incharge_phone')->nullable();
+            // You can add other original columns here if they existed, e.g.:
             $table->string('contact_info')->nullable();
             $table->string('logo_path')->nullable();
             $table->boolean('is_active')->default(true);
+            // --- END OF ADDED COLUMNS ---
+
             $table->timestamps();
         });
     }

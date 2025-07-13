@@ -274,7 +274,7 @@ function HomePage() {
                 </Col>
             </Row>
 
-            {/* --- CORRECTED SECTION 4: LANGUAGE LEARNING --- */}
+            {/* --- CORRECTED SECTION 4: LANGUAGE LEARNING ---
             <hr className="my-5" />
             <div className="d-flex justify-content-between align-items-center my-4">
                 <h2>Learn a Language</h2>
@@ -292,6 +292,7 @@ function HomePage() {
                     </Card>
                 </Col>
             </Row>
+            */}
         </>
     );
 }

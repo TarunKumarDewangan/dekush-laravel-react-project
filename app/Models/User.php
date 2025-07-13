@@ -23,18 +23,16 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'phone_number',
     ];
 
-    public function shop()
+    public function shops()
     {
-        return $this->hasOne(Shop::class);
+        return $this->hasMany(Shop::class);
     }
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+
+
     protected $hidden = [
         'password',
         'remember_token',
