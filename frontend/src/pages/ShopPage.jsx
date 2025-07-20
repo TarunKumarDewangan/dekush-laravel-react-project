@@ -282,7 +282,7 @@ function ShopPage() {
                                     <Card className="h-100">
                                         <Card.Body>
                                             <Card.Title>{product.name}</Card.Title>
-                                            <Card.Subtitle className="mb-2 text-muted">${parseFloat(product.price).toFixed(2)}</Card.Subtitle>
+                                            <Card.Subtitle className="mb-2 text-muted">₹{parseFloat(product.price).toFixed(2)}</Card.Subtitle>
                                             <Card.Text>{product.description}</Card.Text>
                                         </Card.Body>
                                     </Card>

@@ -21,6 +21,19 @@ class ShopController extends Controller
 
     public function update(Request $request, Shop $shop)
     {
+        //     $this->authorize('update', $shop);
+
+        //     $validatedData = $request->validate([
+        //         'name' => 'required|string|max:255',
+        //         'description' => 'nullable|string',
+        //         'contact_info' => 'nullable|string|max:255',
+        //         'address' => 'required|string|max:255',
+        //     ]);
+
+        //     $shop->update($validatedData);
+
+        //     return response()->json($shop);
+
         Gate::authorize('update-shop', $shop);
 
         $validatedData = $request->validate([

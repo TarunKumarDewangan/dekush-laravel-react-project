@@ -148,6 +148,8 @@
 
 // frontend/src/pages/HomePage.jsx
 
+// frontend/src/pages/HomePage.jsx
+
 import { useState, useEffect } from 'react';
 import { Row, Col, Spinner, Alert, Button, Table, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -273,26 +275,6 @@ function HomePage() {
                     </Table>
                 </Col>
             </Row>
-
-            {/* --- CORRECTED SECTION 4: LANGUAGE LEARNING ---
-            <hr className="my-5" />
-            <div className="d-flex justify-content-between align-items-center my-4">
-                <h2>Learn a Language</h2>
-            </div>
-            <Row>
-                <Col>
-                    <Card className="text-center">
-                        <Card.Body>
-                            <Card.Title>Contribute to Our Dictionary</Card.Title>
-                            <Card.Text>
-                                Help us build a community-driven dictionary. Submit a word or phrase and its translation for others to learn.
-                            </Card.Text>
-                            <Button as={Link} to="/language-entry" variant="success">Add an Entry</Button>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-            */}
         </>
     );
 }

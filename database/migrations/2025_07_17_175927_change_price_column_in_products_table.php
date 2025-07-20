@@ -10,9 +10,10 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('language_entries', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('products', function (Blueprint $table) {
+            // Change the 'price' column to a decimal with more range
+            // 15 total digits, 2 after the decimal point.
+            $table->decimal('price', 15, 2)->change();
         });
     }
 
@@ -21,6 +22,8 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('language_entries');
+        Schema::table('products', function (Blueprint $table) {
+            //
+        });
     }
 };

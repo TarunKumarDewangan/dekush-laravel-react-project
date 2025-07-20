@@ -61,9 +61,30 @@ class ShopOwnerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Shop $shop)
+    public function show(Request $request, Shop $shop)
     {
-        return $shop->load(['products', 'user', 'images']);
+        // if ($request->user()->id !== $shop->user_id) {
+        //     // If they don't own it, deny access.
+        //     return response()->json(['message' => 'Unauthorized'], 403);
+        // }
+
+        // // If they do own it, load all the necessary data and return it.
+        // return $shop->load(['products', 'images']);
+
+
+
+        if ($request->user()->id !== $shop->user_id) {
+            return response()->json(['message' => 'This action is unauthorized.'], 403);
+        }
+
+        // Load all the necessary data for the management page
+        $shop->load(['products', 'images']);
+
+        return response()->json($shop);
+
+        // $this->authorize('view', $shop); // This line replaces the if-statement.
+        // $shop->load(['products', 'images']);
+        // return response()->json($shop);
     }
 
     /**
