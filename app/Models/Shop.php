@@ -44,6 +44,7 @@ class Shop extends Model
 
     protected $fillable = [
         'user_id',
+        'category_id',
         'name',
         'description',
         'contact_info',
@@ -53,6 +54,10 @@ class Shop extends Model
         'shop_incharge_phone',
     ]; // <--- ADD THE SEMICOLON HERE
 
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
     public function user()
     {
         return $this->belongsTo(User::class);

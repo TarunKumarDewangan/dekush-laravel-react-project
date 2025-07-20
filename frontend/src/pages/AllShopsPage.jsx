@@ -13,7 +13,7 @@ function AllShopsPage() {
     useEffect(() => {
         apiClient.get('/shops')
             .then(response => {
-                setShops(response.data);
+                setShops(response.data.shops || []);
             })
             .catch(error => {
                 console.error('Error fetching all shops:', error);

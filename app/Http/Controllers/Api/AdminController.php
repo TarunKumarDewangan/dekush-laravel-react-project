@@ -12,7 +12,7 @@ class AdminController extends Controller
     public function getAllUsers()
     {
         // Added orderBy('id') to ensure a consistent order
-        $users = User::with('shop')->orderBy('id')->get();
+        $users = User::with('shops')->orderBy('id')->get();
 
         // Wrap the response in an object with a 'users' key
         return response()->json([

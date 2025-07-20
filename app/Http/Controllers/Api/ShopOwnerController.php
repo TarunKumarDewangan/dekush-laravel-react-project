@@ -27,6 +27,7 @@ class ShopOwnerController extends Controller
             'description' => 'nullable|string',
             'address' => 'required|string|max:255', // Make address required
             'shop_incharge_phone' => 'required|string|regex:/^[6-9]\d{9}$/', // Use the same 10-digit validation
+            'category_id' => 'required|exists:categories,id',
             'images' => 'nullable|array|max:4', // Can be empty, must be an array, max 4 items
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // Each item must be an image
         ]);
@@ -36,6 +37,7 @@ class ShopOwnerController extends Controller
             'description' => $validated['description'],
             'address' => $validated['address'],
             'shop_incharge_phone' => $validated['shop_incharge_phone'],
+            'category_id' => $validated['category_id'],
         ]);
 
         // Now, handle the images
@@ -98,8 +100,21 @@ class ShopOwnerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, Shop $shop)
     {
-        //
+        // 1. Authorize: Make sure the user owns this shop.
+        // This is a critical security check.
+        if ($request->user()->id !== $shop->user_id) {
+            return response()->json(['message' => 'This action is unauthorized.'], 403);
+        }
+
+        // 2. Delete the shop.
+        // Because of 'onDelete('cascade')' in your migrations,
+        // all associated products and images will also be deleted automatically.
+        $shop->delete();
+
+        // 3. Return a success response.
+        // 204 No Content is the standard for a successful deletion.
+        return response()->noContent();
     }
 }
