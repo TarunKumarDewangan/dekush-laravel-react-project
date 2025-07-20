@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Shop;
+use App\Models\Category;
 
 class ShopOwnerController extends Controller
 {
@@ -116,5 +117,17 @@ class ShopOwnerController extends Controller
         // 3. Return a success response.
         // 204 No Content is the standard for a successful deletion.
         return response()->noContent();
+    }
+    public function getAllCategories()
+    {
+        return Category::whereNull('parent_id')
+            ->where('is_active', true)
+            ->with([
+                'children' => function ($query) {
+                    $query->where('is_active', true)->orderBy('name');
+                }
+            ])
+            ->orderBy('name')
+            ->get();
     }
 }

@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/owner/shops', [ShopOwnerController::class, 'store']);
     Route::get('/owner/shops/{shop}', [ShopOwnerController::class, 'show']); // This is the protected route for the management page
     Route::delete('/owner/shops/{shop}', [ShopOwnerController::class, 'destroy']);
+    Route::get('/owner/categories/all', [ShopOwnerController::class, 'getAllCategories']);
 
     // Shop owner can update their own shop's details
     Route::put('/shops/{shop}', [ShopController::class, 'update']);
@@ -53,8 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // --- ADMIN ONLY ROUTES ---
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/categories/all', [CategoryController::class, 'getAll']);
     Route::get('/users', [AdminController::class, 'getAllUsers']);
     Route::put('/users/{user}', [AdminController::class, 'update']);
     Route::delete('/users/{user}', [AdminController::class, 'deleteUser']);
     Route::post('/categories', [CategoryController::class, 'store']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 });

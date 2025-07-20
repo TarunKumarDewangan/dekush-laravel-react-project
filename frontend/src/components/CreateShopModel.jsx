@@ -328,7 +328,7 @@ function CreateShopModal({ show, handleClose, onShopCreated }) {
     // Effect to fetch main categories
     useEffect(() => {
         if (show) {
-            apiClient.get('/categories')
+            apiClient.get('/owner/categories/all')
                 .then(response => {
                     setMainCategories(response.data);
                 })
