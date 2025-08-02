@@ -14,11 +14,15 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::firstOrCreate(
-            ['email' => 'admin@example.com'], // Check if user with this email exists
+            // Attributes to check if the user exists
+            ['email' => 'admin@example.com'],
+
+            // Values to use if the user needs to be created
             [
                 'name' => 'Admin User',
-                'password' => Hash::make('password'), // Always hash passwords!
+                'password' => Hash::make('password'),
                 'role' => 'admin',
+                'phone_number' => '9999999999', // <-- THIS IS THE FIX
             ]
         );
     }

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\LanguageController;
 use App\Http\Controllers\Api\ShopOwnerController;
 use App\Http\Controllers\Api\SearchController; // <-- ADD THIS IMPORT
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\OtpController;
 
 
 
@@ -20,6 +21,8 @@ use App\Http\Controllers\Api\CategoryController;
 
 // --- PUBLIC ROUTES ---
 Route::post('/register', [AuthController::class, 'register']);
+//Route::post('/send-otp', [OtpController::class, 'sendOtp']);
+//Route::post('/verify-and-register', [OtpController::class, 'verifyAndRegister']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/shops', [ShopController::class, 'index']);
 Route::get('/shops/{shop}', [ShopController::class, 'show']); // This is the ONLY route for this pattern.
@@ -30,6 +33,7 @@ Route::get('/search', [SearchController::class, 'search']); // <-- ADD THIS NEW 
 Route::get('/suggestions', [SearchController::class, 'suggestions']);
 Route::get('/categories', [CategoryController::class, 'index']); // <-- ADD THIS
 Route::get('/categories/{category:slug}/shops', [CategoryController::class, 'showShops']); // <-- AND THIS
+
 
 // --- PROTECTED ROUTES (Must be logged in) ---
 Route::middleware('auth:sanctum')->group(function () {
@@ -60,4 +64,5 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::delete('/users/{user}', [AdminController::class, 'deleteUser']);
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+    Route::post('/users', [AdminController::class, 'createUser']);
 });

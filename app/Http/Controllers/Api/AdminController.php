@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -62,5 +63,33 @@ class AdminController extends Controller
             'user' => $user,
             'message' => 'User updated successfully.'
         ]);
+    }
+    public function createUser(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone_number' => ['required', 'string', 'unique:users', 'regex:/^[6-9]\d{9}$/'],
+            'role' => ['required', 'string', Rule::in(['admin', 'shopowner', 'user'])],
+            // 'confirmed' will automatically check for a matching 'password_confirmation' field
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone_number' => $validated['phone_number'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
+        ]);
+
+        // Ensure the new user object also has the 'shops' relationship loaded (as an empty array)
+        // to match the structure of the users from 'getAllUsers' and prevent UI errors.
+        $user->load('shops');
+
+        return response()->json([
+            'message' => 'User created successfully.',
+            'user' => $user
+        ], 201); // 201 'Created' status code
     }
 }
