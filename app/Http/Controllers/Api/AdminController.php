@@ -44,13 +44,19 @@ class AdminController extends Controller
                 'string',
                 'email',
                 'max:255',
-                // This rule ensures the email is unique, but ignores the current user's own email
                 Rule::unique('users')->ignore($user->id),
             ],
+            // --- ADD THIS VALIDATION FOR PHONE NUMBER ---
+            'phone_number' => [
+                'required',
+                'string',
+                'regex:/^[6-9]\d{9}$/', // Indian mobile number format
+                Rule::unique('users')->ignore($user->id),
+            ],
+            // --- END OF ADDITION ---
             'role' => [
                 'required',
                 'string',
-                // Ensure the role is one of the valid options
                 Rule::in(['admin', 'shopowner', 'user']),
             ],
         ]);
