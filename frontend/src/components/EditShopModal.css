@@ -1,0 +1,25 @@
+/* In frontend/src/components/EditShopModal.css */
+
+.image-thumbnail-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+/* This styles the '×' button */
+.delete-image-btn {
+    position: absolute;
+    top: 5px;
+    right: 15px; /* Adjust this value if your thumbnails have padding */
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}

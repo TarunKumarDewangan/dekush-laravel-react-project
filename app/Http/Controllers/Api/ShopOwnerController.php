@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Shop;
 use App\Models\Category;
+// --- MAKE SURE THESE 4 LINES EXIST ---
+use App\Models\ShopImage; // <--- THIS IS THE FIX
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+
 
 class ShopOwnerController extends Controller
 {
@@ -14,7 +19,8 @@ class ShopOwnerController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->user()->shops()->get();
+        // Eager-load the 'images' relationship for each shop
+        return $request->user()->shops()->with('images')->get();
     }
 
 
@@ -26,11 +32,11 @@ class ShopOwnerController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'address' => 'required|string|max:255', // Make address required
-            'shop_incharge_phone' => 'required|string|regex:/^[6-9]\d{9}$/', // Use the same 10-digit validation
+            'address' => 'required|string|max:255',
+            'shop_incharge_phone' => 'required|string|regex:/^[6-9]\d{9}$/',
             'category_id' => 'required|exists:categories,id',
-            'images' => 'nullable|array|max:4', // Can be empty, must be an array, max 4 items
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048' // Each item must be an image
+            'images' => 'nullable|array|max:4',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $shop = $request->user()->shops()->create([
@@ -41,15 +47,9 @@ class ShopOwnerController extends Controller
             'category_id' => $validated['category_id'],
         ]);
 
-        // Now, handle the images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $imageFile) {
-                // Store the file and get the path
                 $path = $imageFile->store('shop_images', 'public');
-
-                // --- THIS IS THE FIX ---
-                // Create a new ShopImage record associated with the shop
-                // and explicitly provide the image_path.
                 $shop->images()->create([
                     'image_path' => $path
                 ]);
@@ -66,36 +66,58 @@ class ShopOwnerController extends Controller
      */
     public function show(Request $request, Shop $shop)
     {
-        // if ($request->user()->id !== $shop->user_id) {
-        //     // If they don't own it, deny access.
-        //     return response()->json(['message' => 'Unauthorized'], 403);
-        // }
+        if ($request->user()->id !== $shop->user_id) {
+            return response()->json(['message' => 'This action is unauthorized.'], 403);
+        }
+        $shop->load(['products', 'images', 'category.parent']);
+        return response()->json($shop);
+    }
 
-        // // If they do own it, load all the necessary data and return it.
-        // return $shop->load(['products', 'images']);
-
-
-
+    /**
+     * Update the specified shop in storage, including adding new images.
+     */
+    public function update(Request $request, Shop $shop)
+    {
         if ($request->user()->id !== $shop->user_id) {
             return response()->json(['message' => 'This action is unauthorized.'], 403);
         }
 
-        // Load all the necessary data for the management page
-        $shop->load(['products', 'images']);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'address' => 'required|string|max:255',
+            'shop_incharge_phone' => 'required|string|regex:/^[6-9]\d{9}$/',
+            'category_id' => 'required|exists:categories,id',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
 
+        $existingImageCount = $shop->images()->count();
+        $newImageCount = count($request->file('images') ?? []);
+        if ($existingImageCount + $newImageCount > 4) {
+            return response()->json([
+                'message' => 'The total number of images cannot exceed 4.',
+                'errors' => ['images' => ['The total number of images cannot exceed 4.']]
+            ], 422);
+        }
+
+        $shop->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'],
+            'address' => $validated['address'],
+            'shop_incharge_phone' => $validated['shop_incharge_phone'],
+            'category_id' => $validated['category_id'],
+        ]);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $imageFile) {
+                $path = $imageFile->store('shop_images', 'public');
+                $shop->images()->create(['image_path' => $path]);
+            }
+        }
+
+        $shop->load(['images', 'products', 'category.parent']);
         return response()->json($shop);
-
-        // $this->authorize('view', $shop); // This line replaces the if-statement.
-        // $shop->load(['products', 'images']);
-        // return response()->json($shop);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
     }
 
     /**
@@ -103,21 +125,41 @@ class ShopOwnerController extends Controller
      */
     public function destroy(Request $request, Shop $shop)
     {
-        // 1. Authorize: Make sure the user owns this shop.
-        // This is a critical security check.
         if ($request->user()->id !== $shop->user_id) {
             return response()->json(['message' => 'This action is unauthorized.'], 403);
         }
-
-        // 2. Delete the shop.
-        // Because of 'onDelete('cascade')' in your migrations,
-        // all associated products and images will also be deleted automatically.
         $shop->delete();
-
-        // 3. Return a success response.
-        // 204 No Content is the standard for a successful deletion.
         return response()->noContent();
     }
+
+    /**
+     * Remove the specified shop image from storage.
+     */
+    public function destroyImage(Request $request, ShopImage $shopImage)
+    {
+        $shopImage->load('shop');
+
+        if (!$shopImage->shop) {
+            return response()->json(['message' => 'Orphaned image cannot be deleted.'], 404);
+        }
+
+        if ($request->user()->id !== $shopImage->shop->user_id) {
+            return response()->json(['message' => 'You do not have permission to delete this image.'], 403);
+        }
+
+        try {
+            if (Storage::disk('public')->exists($shopImage->image_path)) {
+                Storage::disk('public')->delete($shopImage->image_path);
+            }
+            $shopImage->delete();
+        } catch (\Exception $e) {
+            \Log::error('Error deleting shop image: ' . $e->getMessage());
+            return response()->json(['message' => 'A server error occurred while trying to delete the image.'], 500);
+        }
+
+        return response()->noContent();
+    }
+
     public function getAllCategories()
     {
         return Category::whereNull('parent_id')
