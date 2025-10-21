@@ -49,21 +49,19 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        Gate::authorize('manage-product', $product);
+        // 1. Authorize: Ensure the user owns the shop this product belongs to.
+        // This is a critical security check.
+        if ($request->user()->id !== $product->shop->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
 
+        // 2. Validate the incoming data
         $validatedData = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                // Rule: The name must be unique, but ignore the current product's own ID
-                Rule::unique('products')->where(function ($query) use ($product) {
-                    return $query->where('shop_id', $product->shop_id);
-                })->ignore($product->id),
-            ],
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // For a new image upload
+            'delete_image' => 'nullable|boolean', // A flag to signal image deletion
         ]);
 
         $productData = [
@@ -72,14 +70,27 @@ class ProductController extends Controller
             'price' => $validatedData['price'],
         ];
 
+        // 3. Handle Image Deletion
+        if ($request->input('delete_image') && $product->image_path) {
+            Storage::disk('public')->delete($product->image_path);
+            $productData['image_path'] = null; // Remove image path from database
+        }
+
+        // 4. Handle New Image Upload
         if ($request->hasFile('image')) {
+            // If there's an old image, delete it first to prevent orphaned files
             if ($product->image_path) {
                 Storage::disk('public')->delete($product->image_path);
             }
+            // Store the new image and get its path
             $path = $request->file('image')->store('product_images', 'public');
             $productData['image_path'] = $path;
         }
+
+        // 5. Update the product in the database
         $product->update($productData);
+
+        // 6. Return the updated product
         return response()->json($product);
     }
 

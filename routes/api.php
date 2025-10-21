@@ -34,7 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Product Management
     Route::post('/products', [ProductController::class, 'store']);
-    Route::put('/products/{product}', [ProductController::class, 'update']);
+    // AFTER
+    Route::post('/products/{product}', [ProductController::class, 'update']); // Use POST for file uploads
     Route::post('/products/{product}', [ProductController::class, 'update']); // <-- ADDED FOR FILE UPLOADS
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
