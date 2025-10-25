@@ -91,6 +91,7 @@ import ProductManagementPage from './pages/ProductManagementPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminCategoryPage from './pages/AdminCategoryPage';
 import AdminSubCategoryPage from './pages/AdminSubCategoryPage';
+import ProfilePage from './pages/ProfilePage';
 
 
 function App() {
@@ -114,6 +115,7 @@ function App() {
           <Route path="/language-entry" element={<LanguageEntryPage />} />
           <Route path="/dashboard" element={<ProtectedRoute role="shopowner"><DashboardPage /></ProtectedRoute>} />
           <Route path="/owner/shops/:shopId/manage" element={<ProtectedRoute role="shopowner"><ProductManagementPage /></ProtectedRoute>} />
+           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         </Route>
 
         {/* --- Routes for the Admin Layout --- */}

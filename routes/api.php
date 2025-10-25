@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ShopOwnerController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\OtpController;
+use App\Http\Controllers\Api\ProfileController; // Corrected capitalization
 
 // --- PUBLIC ROUTES ---
 Route::post('/register', [AuthController::class, 'register']);
@@ -32,14 +33,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
-    // Product Management
+    // --- Profile Management (for ANY logged-in user) ---
+    // MOVED HERE
+    Route::put('/user/profile', [ProfileController::class, 'updateProfile']);
+    Route::put('/user/password', [ProfileController::class, 'updatePassword']);
+    Route::put('/user/phone-number', [ProfileController::class, 'updatePhoneNumber']);
+
+    // Product Management (protected, but no prefix)
     Route::post('/products', [ProductController::class, 'store']);
-    // AFTER
-    Route::post('/products/{product}', [ProductController::class, 'update']); // Use POST for file uploads
-    Route::post('/products/{product}', [ProductController::class, 'update']); // <-- ADDED FOR FILE UPLOADS
+    Route::post('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
-    // Shop Owner
+    // Shop Owner specific routes
     Route::prefix('owner')->group(function () {
         Route::get('/shops', [ShopOwnerController::class, 'index']);
         Route::post('/shops', [ShopOwnerController::class, 'store']);
@@ -48,6 +53,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/shops/{shop}', [ShopOwnerController::class, 'update']);
         Route::delete('/shops/images/{shopImage}', [ShopOwnerController::class, 'destroyImage']);
         Route::get('/categories/all', [ShopOwnerController::class, 'getAllCategories']);
+
+        // The profile routes were incorrectly placed here. They have been moved out.
     });
 });
 
